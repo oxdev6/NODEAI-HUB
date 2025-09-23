@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-serve
+  labels:
+    app: vllm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm
+  template:
+    metadata:
+      labels:
+        app: vllm
+    spec:
+      nodeSelector:
+        gpu: "true"
+      containers:
+        - name: vllm
+          image: nodeaihub/vllm:latest
+          args: ["--model", "the-model", "--tensor-parallel-size", "1"]
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+              cpu: "4"
+              memory: "16Gi"
+        - name: sidecar
+          image: nodeaihub/sidecar:latest
+          env:
+            - name: METRICS_ADDR
+              value: ":9090"
+            - name: BILLING_TOPIC
+              value: "usage"
+          ports:
+            - containerPort: 9090
+
+

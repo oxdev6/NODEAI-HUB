@@ -1,0 +1,42 @@
+# macOS
+.DS_Store
+
+# Node / TypeScript
+node_modules/
+dist/
+build/
+npm-debug.log*
+yarn-error.log*
+.npm/
+
+# Next.js build output
+.next/
+portal/.next/
+
+# Python
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Env
+.env
+.env.*
+
+# Terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+*.tfstate*
+
+# IDE
+.idea/
+.vscode/
+
+# Coverage / Cache
+coverage/
+.cache/
+
+

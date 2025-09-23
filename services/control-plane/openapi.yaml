@@ -1,0 +1,41 @@
+openapi: 3.0.3
+info:
+  title: NodeAI Control Plane API
+  version: 0.1.0
+paths:
+  /v1/models:
+    post:
+      summary: Upload model
+      responses:
+        '201': { description: Created }
+    get:
+      summary: List models
+      responses:
+        '200': { description: OK }
+  /v1/inference/{modelId}:
+    post:
+      summary: Run inference
+      parameters:
+        - in: path
+          name: modelId
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+  /v1/agents:
+    post:
+      summary: Create agent
+      responses:
+        '201': { description: Created }
+  /v1/agents/{id}/execute:
+    post:
+      summary: Trigger/queue job
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+
+
