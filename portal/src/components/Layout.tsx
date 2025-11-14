@@ -4,6 +4,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { Home, Cpu, Bot, BarChart3, Search, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ApiStatus } from "./ApiStatus";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: Home, gradient: "from-purple-500 to-pink-500" },
@@ -69,7 +70,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
         
-        <div className="relative z-10 p-4 border-t border-slate-200/60 dark:border-slate-700/60">
+        <div className="relative z-10 p-4 border-t border-slate-200/60 dark:border-slate-700/60 space-y-3">
+          <ApiStatus />
           <div className="px-4 py-2 rounded-lg bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700">
             <div className="text-xs font-semibold text-slate-600 dark:text-slate-400">Version</div>
             <div className="text-sm font-bold gradient-text">v0.1.0</div>

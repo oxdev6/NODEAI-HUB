@@ -33,7 +33,9 @@ export default function AgentsPage() {
       mutate();
       toast.push("Agent created successfully");
     } catch (error) {
-      toast.push("Failed to create agent");
+      console.error("Create agent error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to create agent";
+      toast.push(`Failed: ${errorMessage}`);
     }
   }
 

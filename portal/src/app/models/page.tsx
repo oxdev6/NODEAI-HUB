@@ -31,7 +31,9 @@ export default function ModelsPage() {
       mutate();
       toast.push("Model created successfully");
     } catch (error) {
-      toast.push("Failed to create model");
+      console.error("Create model error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to create model";
+      toast.push(`Failed: ${errorMessage}`);
     }
   }
 
