@@ -1,0 +1,147 @@
+# NodeAI Agents Hub - NodeOps Cloud Deployment Configuration
+# Defines the version of the configuration format
+version: 0.1
+
+# Services are a collection of workloads that work together
+services:
+  # Control Plane API Service
+  control-plane:
+    # Specify the container image name; Make sure image is public
+    image: docker.io/frank903/nodeai-control-plane:amd64-latest
+
+    # Determines when to fetch the latest version of the workload
+    imagePullPolicy: Always
+
+    # Defines the command to run; empty by default
+    command: []
+
+    # Specifies arguments for the command; empty by default
+    args: []
+
+    # Defines network-related settings
+    ports:
+      - containerPort: 3000 # The port on which the API service will be available
+        protocol: TCP # The protocol used for communication
+        expose: true # This will generate the URL for the service, so it can be accessed from the internet
+
+    # Defines environment variables for the workload
+    env:
+      - name: NODE_ENV # Environment variable name
+        value: "{{.NODE_ENV}}" # Placeholder for dynamic value substitution
+        default: production # Default value for the environment variable
+        info: "Application environment: development, staging, or production" # Description of the environment variable
+
+      - name: PORT # Static environment variable
+        value: "3000"
+
+      - name: LOG_LEVEL # Logging level
+        value: "{{.LOG_LEVEL}}"
+        default: info
+        info: "Logging level: debug, info, warn, error"
+
+    # Specifies the minimum resource allocation
+    # This also specify the template price
+    resourceUsage:
+      idle:
+        cpu: 500 # CPU allocation (0.5 cores)
+        memory: 1024 # Memory allocation (1GB)
+
+  # Agent Runtime Service
+  agent-runtime:
+    # Specify the container image name; Make sure image is public
+    image: docker.io/frank903/nodeai-agent-runtime:amd64-latest
+
+    # Determines when to fetch the latest version of the workload
+    imagePullPolicy: Always
+
+    # Defines the command to run; empty by default
+    command: []
+
+    # Specifies arguments for the command; empty by default
+    args: []
+
+    # Defines network-related settings
+    ports:
+      - containerPort: 8000 # Internal port for agent communication
+        protocol: TCP # The protocol used for communication
+        expose: false # Internal service only
+
+    # Defines environment variables for the workload
+    env:
+      - name: CONTROL_PLANE_URL # Environment variable name
+        value: "{{.CONTROL_PLANE_URL}}" # Placeholder for dynamic value substitution
+        default: "http://control-plane:3000" # Default value for the environment variable
+        info: "URL of the control plane API service" # Description of the environment variable
+
+      - name: AGENT_WORKERS # Number of agent workers
+        value: "{{.AGENT_WORKERS}}"
+        default: "3"
+        info: "Number of concurrent agent workers to run"
+
+      - name: LOG_LEVEL # Logging level
+        value: "{{.LOG_LEVEL}}"
+        default: info
+        info: "Logging level: debug, info, warn, error"
+
+    # Specifies the minimum resource allocation
+    # This also specify the template price
+    resourceUsage:
+      idle:
+        cpu: 300 # CPU allocation (0.3 cores)
+        memory: 512 # Memory allocation (512MB)
+
+  # Web Portal Service
+  portal:
+    # Specify the container image name; Make sure image is public
+    image: docker.io/frank903/nodeai-portal:amd64-latest
+
+    # Determines when to fetch the latest version of the workload
+    imagePullPolicy: Always
+
+    # Defines the command to run; empty by default
+    command: []
+
+    # Specifies arguments for the command; empty by default
+    args: []
+
+    # Defines network-related settings
+    ports:
+      - containerPort: 3001 # The port on which the web portal will be available
+        protocol: TCP # The protocol used for communication
+        expose: false # Internal service (accessed through control-plane)
+
+    # Defines environment variables for the workload
+    env:
+      - name: NEXT_PUBLIC_NODEAI_API # Environment variable name
+        value: "{{.NEXT_PUBLIC_NODEAI_API}}" # Placeholder for dynamic value substitution
+        default: "http://control-plane:3000" # Default value for the environment variable
+        info: "Public API URL for the frontend to connect to" # Description of the environment variable
+
+      - name: NODE_ENV # Environment variable
+        value: "{{.NODE_ENV}}"
+        default: production
+        info: "Application environment: development, staging, or production"
+
+      - name: PORT # Static environment variable for Next.js
+        value: "3001"
+
+    # Specifies the minimum resource allocation
+    # This also specify the template price
+    resourceUsage:
+      idle:
+        cpu: 200 # CPU allocation (0.2 cores)
+        memory: 512 # Memory allocation (512MB)
+
+  ######## Constraints ########
+  # 1. Maximum 5 services can be deployed.
+  # 2. CU = max(total CPU, total Memory); Max 4 CUs can be deployed.
+  # 3. One service can be expose outside the world.
+  # 4. In upgrade template does not allow to add service(s) / update service(s) resources.
+  ######## Constraints ########
+
+  # Total Resource Usage:
+  # CPU: 500 + 300 + 200 = 1000 millicores (1.0 cores)
+  # Memory: 1024 + 512 + 512 = 2048 MB (2GB)
+  # CU = max(1.0, 2.0) = 2.0 CUs (within 4 CU limit)
+  # Services: 3 (within 5 service limit)
+  # Exposed: 1 service (control-plane) - within limit

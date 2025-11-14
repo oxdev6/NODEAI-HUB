@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Control Plane API
+  control-plane:
+    build:
+      context: ./services/control-plane
+      dockerfile: Dockerfile
+    image: nodeai-hub/control-plane:amd64-latest
+    container_name: nodeai-control-plane
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
+    networks:
+      - nodeai-network
+
+  # Agent Runtime
+  agent-runtime:
+    build:
+      context: ./agent-runtime
+      dockerfile: Dockerfile
+    image: nodeai-hub/agent-runtime:amd64-latest
+    container_name: nodeai-agent-runtime
+    depends_on:
+      - control-plane
+    environment:
+      - CONTROL_PLANE_URL=http://control-plane:3000
+    restart: unless-stopped
+    networks:
+      - nodeai-network
+
+  # Web Portal
+  portal:
+    build:
+      context: ./portal
+      dockerfile: Dockerfile
+    image: nodeai-hub/portal:amd64-latest
+    container_name: nodeai-portal
+    ports:
+      - "3003:3000"
+    environment:
+      - NEXT_PUBLIC_NODEAI_API=http://localhost:3000
+    depends_on:
+      - control-plane
+    restart: unless-stopped
+    networks:
+      - nodeai-network
+
+networks:
+  nodeai-network:
+    driver: bridge
+
